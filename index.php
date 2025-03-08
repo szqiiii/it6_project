@@ -152,8 +152,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <button onclick="location.href='index.php?page=stock_out'"><i class="fas fa-minus-circle"></i> Stock Out</button>
             <button onclick="location.href='index.php?page=suppliers'"><i class="fas fa-truck"></i> Suppliers</button>
             <button onclick="location.href='index.php?page=products'"><i class="fas fa-box"></i> Products</button>
+            <button onclick="location.href='login/manage_users.php'"><i class="fas fa-users"></i>Users</button>
+            <button onclick="location.href='login/manage_employees.php'"><i class="fas fa-user-cog"></i>Employees</button>
             <button class="logout" onclick="location.href='login/login.php'"><i class="fas fa-sign-out-alt"></i> Logout</button>
-            <button onclick="location.href='login/manage_employees.php'"><i class="bi bi-person-gear"></i> Manage Employees</button>
+            
         </div>
         <div class="content">
             <?php
