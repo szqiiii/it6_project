@@ -8,14 +8,13 @@ if (!isset($_SESSION['loggedin'])) {
     exit;
 }
 
-include '../db_connection.php';
+include '../dbcon/db_connection.php';
 
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Delete employee
     if (isset($_POST['delete_employee'])) {
         $employee_id = $_POST['employee_id'];
-        // Convert to prepared statement
         $stmt = $conn->prepare("DELETE FROM employee WHERE employee_id = ?");
         $stmt->bind_param("i", $employee_id);
         if ($stmt->execute()) {
@@ -28,16 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     // Add new employee
     if (isset($_POST['add_employee'])) {
-        $name = $_POST['name']; // Changed from username to name
+        $name = $_POST['name'];
         $first_name = $_POST['first_name'];
         $last_name = $_POST['last_name'];
-        $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // Hashing the password
         $role = $_POST['role'];
         
-        // Convert to prepared statement
-        $stmt = $conn->prepare("INSERT INTO employee (name, password, first_name, last_name, role) 
-                VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssss", $name, $password, $first_name, $last_name, $role);
+        $stmt = $conn->prepare("INSERT INTO employee (name, first_name, last_name, role) 
+                VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("ssss", $name, $first_name, $last_name, $role);
         if ($stmt->execute()) {
             echo "<script>alert('Employee added successfully!');</script>";
         } else {
@@ -49,24 +46,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Update employee
     if (isset($_POST['update_employee'])) {
         $employee_id = $_POST['employee_id'];
-        $name = $_POST['name']; // Changed from username to name
+        $name = $_POST['name'];
         $first_name = $_POST['first_name'];
         $last_name = $_POST['last_name'];
         $role = $_POST['role'];
         
-        // Only update password if a new one is provided
-        if (!empty($_POST['password'])) {
-            $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-            // Prepare statement with password update
-            $stmt = $conn->prepare("UPDATE employee SET name = ?, first_name = ?, 
-                    last_name = ?, role = ?, password = ? WHERE employee_id = ?");
-            $stmt->bind_param("sssssi", $name, $first_name, $last_name, $role, $password, $employee_id);
-        } else {
-            // Prepare statement without password update
-            $stmt = $conn->prepare("UPDATE employee SET name = ?, first_name = ?, 
-                    last_name = ?, role = ? WHERE employee_id = ?");
-            $stmt->bind_param("ssssi", $name, $first_name, $last_name, $role, $employee_id);
-        }
+        $stmt = $conn->prepare("UPDATE employee SET name = ?, first_name = ?, 
+                last_name = ?, role = ? WHERE employee_id = ?");
+        $stmt->bind_param("ssssi", $name, $first_name, $last_name, $role, $employee_id);
         
         if ($stmt->execute()) {
             echo "<script>alert('Employee updated successfully!');</script>";
@@ -166,6 +153,7 @@ if ($result->num_rows > 0) {
                 </div>
             </div>
         </div>
+        <!-- Corrected "Back to Dashboard" link -->
         <a href="../index.php" class="btn btn-secondary mt-3">Back to Dashboard</a>
     </div>
 
@@ -190,10 +178,6 @@ if ($result->num_rows > 0) {
                         <div class="mb-3">
                             <label for="last_name" class="form-label">Last Name</label>
                             <input type="text" class="form-control" id="last_name" name="last_name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
                         </div>
                         <div class="mb-3">
                             <label for="role" class="form-label">Role</label>
@@ -236,10 +220,6 @@ if ($result->num_rows > 0) {
                             <input type="text" class="form-control" id="edit_last_name" name="last_name" required>
                         </div>
                         <div class="mb-3">
-                            <label for="edit_password" class="form-label">Password (Leave blank to keep current)</label>
-                            <input type="password" class="form-control" id="edit_password" name="password">
-                        </div>
-                        <div class="mb-3">
                             <label for="edit_role" class="form-label">Role</label>
                             <select class="form-select" id="edit_role" name="role" required>
                                 <option value="admin">Admin</option>
@@ -274,7 +254,6 @@ if ($result->num_rows > 0) {
                     document.getElementById('edit_first_name').value = firstName;
                     document.getElementById('edit_last_name').value = lastName;
                     document.getElementById('edit_role').value = role;
-                    document.getElementById('edit_password').value = '';
                 });
             });
         });
